@@ -74,4 +74,9 @@ class AuthController extends BaseController
             'token' => auth()->user()->createToken('Boxin')->accessToken,
         ]);
     }
+
+    public function refreshToken()
+    {
+        //
+    }
 }
