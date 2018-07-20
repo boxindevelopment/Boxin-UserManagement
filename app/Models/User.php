@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomResetPassword;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-
-      use HasApiTokens, Notifiable;
+      use HasApiTokens, Notifiable, CanResetPassword;
 
     /**
      * The attributes that are mass assignable.
@@ -28,4 +29,14 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param string $token
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
+    }
 }
