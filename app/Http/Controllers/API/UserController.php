@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API;
 use App\Http\Resources\AuthResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 
 class UserController extends BaseController
 {
@@ -44,38 +43,5 @@ class UserController extends BaseController
             'success' => true,
             'message' => 'User updated'
         ]);
-    }
-
-    public function sendEmailReset(Request $request)
-    {
-        $validator = \Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email'
-        ]);
-
-        if($validator->fails()) {
-            return $this->sendError('Error ', $validator->errors());
-        }
-
-        $user = User::where('email', $request->email)->first();
-
-        if($user) {
-            $response = $this->broker()->sendResetLink(
-                $request->only('email')
-            );
-
-            return $response == Password::RESET_LINK_SENT
-                ? response()->json(['status' => $response])
-                : response()->json(['email' => $response]);
-        }
-
-        return response()->json([
-            'status' => false,
-            'message' => 'Data not found'
-        ]);
-    }
-
-    protected function broker()
-    {
-        return Password::broker();
     }
 }

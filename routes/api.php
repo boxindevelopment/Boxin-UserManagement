@@ -14,11 +14,12 @@ use Illuminate\Http\Request;
 */
 
 Route::group(['namespace' => 'API'], function () {
-		Route::post('register', ['uses' => 'AuthController@register', 'as' => 'api.auth.getToken']);
-		Route::post('login', ['uses' => 'AuthController@login', 'as' => 'api.auth.getToken']);
-		Route::get('facebook/{token}', ['uses' => 'FacebookController@getToken', 'as' => 'api.facebook']);
-		Route::get('google/{token}', ['uses' => 'GoogleController@getToken', 'as' => 'api.google']);
-	Route::post('password/email', 'UserController@sendEmailReset')->name('api.password.email');
+	Route::post('register', ['uses' => 'AuthController@register', 'as' => 'api.auth.getToken']);
+	Route::post('login', ['uses' => 'AuthController@login', 'as' => 'api.auth.getToken']);
+	Route::get('facebook/{token}', ['uses' => 'FacebookController@getToken', 'as' => 'api.facebook']);
+	Route::get('google/{token}', ['uses' => 'GoogleController@getToken', 'as' => 'api.google']);
+	Route::post('password/email', 'PasswordController@sendEmailReset')->name('api.password.email');
+	Route::post('password/reset', 'PasswordController@changePassword')->name('api.password.reset');
 
 	Route::prefix('user')->middleware('auth:api')->group(function() {
 		Route::get('profile', 'UserController@show')->name('api.user.show');
