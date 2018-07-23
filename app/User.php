@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App;
 
 use App\Notifications\CustomResetPassword;
 use Illuminate\Auth\Passwords\CanResetPassword;

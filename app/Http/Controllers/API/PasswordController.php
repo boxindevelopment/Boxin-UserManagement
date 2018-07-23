@@ -85,4 +85,29 @@ class PasswordController extends BaseController
     {
         return Password::broker();
     }
+
+    public function setPassword(Request $request)
+    {
+
+        $validator = \Validator::make($request->all(), [
+            'token' => 'required',
+            'password' => 'required',
+            'confirmation_password' => 'required|same:password',
+        ]);
+
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        $data['password']   = bcrypt($request->input('password'));
+        $data['remember_token']   = NULL;
+        $password     = User::where('remember_token', $request->input('token'))->update($data);
+        if($password){
+            return $this->sendResponse($password, 'Success set up password.');
+        }else{
+            return response()->json(['message' => 'Set Up Password failed. Your Token is wrong.']);
+        }
+    }
+
 }
