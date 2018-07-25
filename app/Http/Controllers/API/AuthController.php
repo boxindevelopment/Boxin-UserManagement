@@ -117,7 +117,7 @@ class AuthController extends BaseController
         }
     }
 
-    public function authCode($code, Request $request)
+    public function authCode(Request $request)
     {
 
         $validator = \Validator::make($request->all(), [
@@ -129,7 +129,8 @@ class AuthController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $user_id                  = $request->input('user_id');
+        $user_id              = $request->input('user_id');
+        $code                 = $request->input('code');
         
         if($code == $request->input('code_verification')){
             $data['remember_token']   = NULL;
