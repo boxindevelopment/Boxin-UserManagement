@@ -6,8 +6,11 @@ use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\AuthResource;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Notifications\Notifiable;
+use Nexmo;
 
 class PasswordController extends BaseController
 {
@@ -100,13 +103,27 @@ class PasswordController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $data['password']   = bcrypt($request->input('password'));
-        $data['remember_token']   = NULL;
-        $password     = User::where('remember_token', $request->input('token'))->update($data);
-        if($password){
-            return $this->sendResponse($password, 'Success set up password.');
+        $get_id             = User::where('remember_token', $request->input('token'))->get();
+        
+        if(isset($get_id[0])){
+            $user_id            = $get_id[0]->id;
+            $phone              = $get_id[0]->phone;
+            $data['password']   = bcrypt($request->input('password'));
+            $password           = User::where('id', $user_id)->update($data);
+            $code               = rand(1000,9999);
+
+            Nexmo::message()->send([
+                'to'   => $phone,
+                'from' => 'Boxin',
+                'text' => 'Please use this number '.$code.' for authentification in Boxin App. Thank you.'
+            ]);
+            $result = array(
+                'user_id' => $user_id,
+                'code'    => $code
+            );
+            return $this->sendResponse($result, 'Success set up password.');
         }else{
-            return response()->json(['message' => 'Set Up Password failed. Your Token is wrong.']);
+            return $this->sendError('Set Up Password failed. Your Token is wrong.');
         }
     }
 

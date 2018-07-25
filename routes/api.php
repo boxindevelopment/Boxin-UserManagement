@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 */
 
 Route::group(['namespace' => 'API'], function () {
-	// Route::post('register', ['uses' => 'AuthController@register', 'as' => 'api.auth.getToken']);
+	Route::post('register', ['uses' => 'AuthController@register', 'as' => 'api.auth.getToken']);
 	Route::post('login', ['uses' => 'AuthController@login', 'as' => 'api.auth.getToken']);
 	Route::get('facebook/{token}', ['uses' => 'FacebookController@getToken', 'as' => 'api.facebook']);
 	Route::get('google/{token}', ['uses' => 'GoogleController@getToken', 'as' => 'api.google']);
@@ -23,6 +23,8 @@ Route::group(['namespace' => 'API'], function () {
 
 	Route::post('sign-up', ['uses' => 'AuthController@signUp', 'as' => 'api.auth.signUp']);
 	Route::post('set-password', ['uses' => 'PasswordController@setPassword', 'as' => 'api.password.setPassword']);
+	Route::post('auth-code/{code}', ['uses' => 'AuthController@authCode', 'as' => 'api.auth.authCode']);
+	Route::post('retry-code/{user_id}', ['uses' => 'AuthController@retryCode', 'as' => 'api.auth.retryCode']);
 
 	Route::prefix('user')->middleware('auth:api')->group(function() {
 		Route::get('profile', 'UserController@show')->name('api.user.show');
