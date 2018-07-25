@@ -21,6 +21,11 @@ Route::group(['namespace' => 'API'], function () {
 	Route::post('password/email', 'PasswordController@sendEmailReset')->name('api.password.email');
 	Route::post('password/reset', 'PasswordController@changePassword')->name('api.password.reset');
 
+	Route::post('sign-up', ['uses' => 'AuthController@signUp', 'as' => 'api.auth.signUp']);
+	Route::post('set-password', ['uses' => 'PasswordController@setPassword', 'as' => 'api.password.setPassword']);
+	Route::post('auth-code/{code}', ['uses' => 'AuthController@authCode', 'as' => 'api.auth.authCode']);
+	Route::post('retry-code/{user_id}', ['uses' => 'AuthController@retryCode', 'as' => 'api.auth.retryCode']);
+
 	Route::prefix('user')->middleware('auth:api')->group(function() {
 		Route::get('profile', 'UserController@show')->name('api.user.show');
 		Route::post('update', 'UserController@update')->name('api.user.update');

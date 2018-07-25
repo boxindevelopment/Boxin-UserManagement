@@ -21,7 +21,7 @@ class UserController extends BaseController
     {
         $user = $request->user();
         $validator = \Validator::make($request->all(), [
-            'name' => 'required',
+            'first_name' => 'required',
             'phone' => 'required|unique:users,phone,'. $request->user()->id,
             'email' => 'required|email|unique:users,email,'. $request->user()->id
         ]);
@@ -31,7 +31,8 @@ class UserController extends BaseController
         }
 
         $user = User::findOrFail($user->id);
-        $user->name = $request->name;
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
         $user->email = $request->email;
         $user->phone = $request->phone;
         if($request->password != null) {
