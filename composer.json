@@ -11,7 +11,9 @@
         "laravel/passport": "^6.0",
         "laravel/tinker": "^1.0",
         "nexmo/client": "^1.4",
-        "nexmo/laravel": "^1.1"
+        "nexmo/laravel": "^1.1",
+        "twilio/sdk": "4.10",
+        "zenapply/laravel-sms": "^2.1"
     },
     "require-dev": {
         "filp/whoops": "^2.0",

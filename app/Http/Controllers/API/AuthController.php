@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Notifications\Notifiable;
 use Nexmo;
+use Sms;
 
 class AuthController extends BaseController
 {
@@ -162,5 +163,27 @@ class AuthController extends BaseController
             return $this->sendError('Send new code failed.');
         }
     }
+
+    // public function retryCode($user_id)
+    // {
+    //     $data               = User::where('id', $user_id)->get();
+    //     $phone              = $data[0]->phone;
+    //     $code               = rand(1000,9999);
+    //     if($data){
+    //         $message  = "Hello Phone!";
+    //         $to       = "+6281221819612";
+    //         $from     = "+6281221819612";
+    //         $response = Sms::send($message,$to,$from);
+    //         dd($response);
+    //         $result = array(
+    //             'user_id' => $user_id,
+    //             'code'    => $code,
+    //             'response'=> $response,
+    //         );
+    //         return $this->sendResponse($result, 'Success send new code.');
+    //     }else{
+    //         return $this->sendError('Send new code failed.');
+    //     }
+    // }
 
 }
