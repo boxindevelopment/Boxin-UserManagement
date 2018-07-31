@@ -132,7 +132,7 @@ class AuthController extends BaseController
 
         $user_id              = $request->input('user_id');
         $code                 = $request->input('code');
-        
+
         if($code == $request->input('code_verification')){
             $data['remember_token']   = NULL;
             $data['status']   = 1;
