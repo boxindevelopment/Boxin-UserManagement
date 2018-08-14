@@ -64,6 +64,10 @@ class AuthController extends BaseController
             ], 401);
         }
 
+        if (auth()->user()->status != 1) {
+            return response()->json(['success' => 'false', 'message' => 'Login not verified.'], 401);
+        }
+
         $success['token'] =  auth()->user()->createToken('Boxin')->accessToken;
         $success['first_name'] =  auth()->user()->first_name;
         $success['email'] =  auth()->user()->email;
@@ -153,31 +157,38 @@ class AuthController extends BaseController
             $data['remember_token']   = NULL;
             $data['status']   = 1;
             $verification     = User::where('id', $user->id)->update($data);
-            return $this->sendResponse($verification, 'Authentification success.');
+            // return $this->sendResponse($verification, 'Authentification success.');
+            return (new AuthResource($user))->additional([
+                'success' => true,
+                'message' => 'Authentification success.'
+            ]);
         }else{
             return $this->sendError('Authentification failed, your number wrong. Please try again.');
         }
     }
 
-    public function retryCode($user_id)
+    public function retryCode(Request $request)
     {
-        $data               = User::where('id', $user_id)->get();
-        $phone              = $data[0]->phone;
+
+        $data               = $request->user();
         $code               = rand(1000,9999);
         if($data){
+            $data->remember_token = $code;
+            $data->save();
             Nexmo::message()->send([
-                'to'   => $phone,
+                'to'   => $data->phone,
                 'from' => 'Boxin',
                 'text' => 'Please use this number '.$code.' for authentification in Boxin App. Thank you.'
             ]);
             $result = array(
-                'user_id' => $user_id,
+                'user_id' => $data->id,
                 'code'    => $code
             );
             return $this->sendResponse($result, 'Success send new code.');
         }else{
             return $this->sendError('Send new code failed.');
         }
+
     }
 
     // public function retryCode($user_id)
