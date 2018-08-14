@@ -22,33 +22,6 @@ class AuthController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required',
-            'phone' => 'required|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required',
-            'confirmation_password' => 'required|same:password',
-        ]);
-
-
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-
-
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
-
-        return (new AuthResource($user))->additional([
-            'success' => true,
-            'message' => 'User register successfully.',
-            'token' => $user->createToken('Boxin')->accessToken,
-        ]);
-
-    }
 
     public function login(Request $request)
     {
@@ -124,7 +97,7 @@ class AuthController extends BaseController
                     'from' => 'Boxin',
                     'text' => 'Please use this number '.$code.' for authentification in Boxin App. Thank you.'
                 ]);
-            } catch (Exception $e) {
+            } catch (Nexmo\Client\Exception\Request $e) {
             }
 
             return (new AuthResource($user))->additional([
