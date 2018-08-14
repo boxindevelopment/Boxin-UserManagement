@@ -68,7 +68,6 @@ class FacebookController extends BaseController
 
               // dd($response);
 
-                $gender = ($response['gender'] == 'male') ? 1 : 0;
                 $names = explode(" ", $response['name']);
                 $lastName = array_pop($names);
                 $firstName = implode(" ", $names);
