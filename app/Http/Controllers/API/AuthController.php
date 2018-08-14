@@ -88,7 +88,9 @@ class AuthController extends BaseController
         $validator = Validator::make($request->all(), [
             'first_name' => 'required',
             'email' => 'required|email|unique:users',
-            'phone' => 'required|numeric'
+            'phone' => 'required|numeric',
+            'password' => 'required',
+            'confirmation_password' => 'required|same:password',
         ]);
 
 
@@ -98,7 +100,7 @@ class AuthController extends BaseController
 
 
         $input              = $request->all();
-        $input['password']  = '';
+        $input['password']   = bcrypt($request->input('password'));
         $input['phone']     = $request->input('phone');
         $user               = User::create($input);
         $token              = $user->createToken('Boxin')->accessToken;
@@ -107,10 +109,25 @@ class AuthController extends BaseController
         $remember_token     = User::whereId($user->id)->update($data);
 
         if($user){
+
+
+          $code = rand(1000,9999);
+          $user->remember_token = $code;
+          $user->save();
+            try {
+                Nexmo::message()->send([
+                    'to'   => $input['phone'],
+                    'from' => 'Boxin',
+                    'text' => 'Please use this number '.$code.' for authentification in Boxin App. Thank you.'
+                ]);
+            } catch (Exception $e) {
+            }
+
             return (new AuthResource($user))->additional([
                 'success' => true,
                 'message' => 'User register successfully.',
                 'token' => $token,
+                'code' => $code,
             ]);
         } else {
             User::whereId($user->id)->delete($user->id);
@@ -130,13 +147,12 @@ class AuthController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $user_id              = $request->input('user_id');
-        $code                 = $request->input('code');
+        $user             = $request->user();
 
-        if($code == $request->input('code_verification')){
+        if($user->remember_token == $request->input('code_verification')){
             $data['remember_token']   = NULL;
             $data['status']   = 1;
-            $verification     = User::where('id', $user_id)->update($data);
+            $verification     = User::where('id', $user->id)->update($data);
             return $this->sendResponse($verification, 'Authentification success.');
         }else{
             return $this->sendError('Authentification failed, your number wrong. Please try again.');

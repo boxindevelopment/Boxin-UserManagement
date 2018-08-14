@@ -104,7 +104,7 @@ class PasswordController extends BaseController
         }
 
         $get_id             = User::where('remember_token', $request->input('token'))->get();
-        
+
         if(isset($get_id[0])){
             $user_id            = $get_id[0]->id;
             $phone              = $get_id[0]->phone;
@@ -112,15 +112,22 @@ class PasswordController extends BaseController
             $password           = User::where('id', $user_id)->update($data);
             $code               = rand(1000,9999);
 
-            Nexmo::message()->send([
-                'to'   => $phone,
-                'from' => 'Boxin',
-                'text' => 'Please use this number '.$code.' for authentification in Boxin App. Thank you.'
-            ]);
+            try {
+
+                Nexmo::message()->send([
+                    'to'   => $phone,
+                    'from' => 'Boxin',
+                    'text' => 'Please use this number '.$code.' for authentification in Boxin App. Thank you.'
+                ]);
+
+            } catch (Exception $e) {
+            }
+
             $result = array(
                 'user_id' => $user_id,
                 'code'    => $code
             );
+
             return $this->sendResponse($result, 'Success set up password.');
         }else{
             return $this->sendError('Set Up Password failed. Your Token is wrong.');
