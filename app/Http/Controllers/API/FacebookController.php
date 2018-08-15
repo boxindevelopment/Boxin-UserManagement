@@ -59,12 +59,15 @@ class FacebookController extends BaseController
             $userByIdFacebook =  User::where('facebook_id', $response['id'])->first();
 
             if (!is_null($userByEmail)) {
+                $userByEmail->facebook_id = $response['id'];
+                $userByEmail->save();
                 return $this->resultToken($userByEmail);
             } else if(!is_null($userByIdFacebook)) {
                 return $this->resultToken($userByIdFacebook);
             } else {
 
-                $gender = ($response['gender'] == 'male') ? 1 : 0;
+              // dd($response);
+
                 $names = explode(" ", $response['name']);
                 $lastName = array_pop($names);
                 $firstName = implode(" ", $names);
@@ -72,7 +75,8 @@ class FacebookController extends BaseController
                 $password = bcrypt($firstName);
 
                 $input = array(
-                                'name' => $response['name'],
+                                'first_name' => $firstName,
+                                'last_name' => $lastName,
                                 'email' => $response['email'],
                                 'password' => $password,
                                 'facebook_id' => $response['id']

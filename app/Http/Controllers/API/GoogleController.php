@@ -64,6 +64,8 @@ class GoogleController extends BaseController
 
             return $this->login($user);
 
+        } else {
+            return response()->json(['error' => 'email facebook not found'], 401);
         }
 
     }
