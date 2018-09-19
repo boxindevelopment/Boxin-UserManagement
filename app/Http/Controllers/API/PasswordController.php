@@ -11,10 +11,36 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Notifications\Notifiable;
 use Nexmo;
+use Illuminate\Support\Facades\Mail;
 
 class PasswordController extends BaseController
 {
-    public function sendEmailReset(Request $request)
+    // public function sendEmailReset(Request $request)
+    // {
+    //     $validator = \Validator::make($request->all(), [
+    //         'email' => 'required|email|exists:users,email'
+    //     ]);
+
+    //     if($validator->fails()) {
+    //         return $this->sendError('Error ', $validator->errors());
+    //     }
+
+    //     $response = $this->broker()->sendResetLink(
+    //         $request->only('email')
+    //     );
+
+    //     return $response == Password::RESET_LINK_SENT
+    //         ? response()->json([
+    //             'status' => true,
+    //             'message' => $response
+    //         ])
+    //         : response()->json([
+    //             'status' => false,
+    //             'message' => $response
+    //         ]);
+    // }
+
+    public function forgotPassword(Request $request)
     {
         $validator = \Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email'
@@ -24,19 +50,24 @@ class PasswordController extends BaseController
             return $this->sendError('Error ', $validator->errors());
         }
 
-        $response = $this->broker()->sendResetLink(
-            $request->only('email')
-        );
-
-        return $response == Password::RESET_LINK_SENT
-            ? response()->json([
-                'status' => true,
-                'message' => $response
-            ])
-            : response()->json([
-                'status' => false,
-                'message' => $response
-            ]);
+        $params = $request->only('email');
+        $user = User::where('email','=',$params['email'])->first();
+        if($user){
+            $new_password = str_random(6);
+            $user->password = bcrypt($new_password);
+            // TODO: create email view for new password
+            if($user->save()){
+                // TODO: create email view for new password
+                Mail::send('emails.password', ['password' => $new_password], function ($m) use ($user) {
+                    $m->from('admin@boxin.com', "Boxin Administrator");
+                    $m->to($user->email, $user->first_name)->subject('Resetting Account Password');
+                });
+                return response()->json($response = ['message' => 'Reset password already sent to your email.']);
+            } else {
+                return response()->json($response = ['message' => 'Reset password fail.']);
+            }
+        }
+        return response()->json($response = ['message' => 'Your email has not yet registered. Please contact admin!'], 404);
     }
 
     public function changePassword(Request $request)

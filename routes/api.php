@@ -18,14 +18,15 @@ Route::group(['namespace' => 'API'], function () {
 	Route::post('login', ['uses' => 'AuthController@login', 'as' => 'api.auth.getToken']);
 	Route::get('facebook/{token}', ['uses' => 'FacebookController@getToken', 'as' => 'api.facebook']);
 	Route::get('google/{token}', ['uses' => 'GoogleController@getToken', 'as' => 'api.google']);
-	Route::post('password/email', 'PasswordController@sendEmailReset')->name('api.password.email');
+	Route::post('password/email', 'PasswordController@forgotPassword')->name('api.password.email');
 	Route::post('password/reset', 'PasswordController@changePassword')->name('api.password.reset');
 
 	Route::post('sign-up', ['uses' => 'AuthController@signUp', 'as' => 'api.auth.signUp']);
 	Route::post('set-password', ['uses' => 'PasswordController@setPassword', 'as' => 'api.password.setPassword']);
 	Route::post('auth-code', ['uses' => 'AuthController@authCode', 'as' => 'api.auth.authCode'])->middleware('auth:api');
 	// Route::post('auth-code', 'AuthController@authCode')->middleware('auth:api');
-	Route::post('retry-code', ['uses' => 'AuthController@retryCode', 'as' => 'api.auth.retryCode'])->middleware('auth:api');
+	// Route::post('retry-code', ['uses' => 'AuthController@retryCode', 'as' => 'api.auth.retryCode'])->middleware('auth:api');
+	Route::post('retry-code', ['uses' => 'AuthController@retryCode', 'as' => 'api.auth.retryCode']);
 
 	Route::prefix('user')->middleware('auth:api')->group(function() {
 		Route::get('profile', 'UserController@show')->name('api.user.show');

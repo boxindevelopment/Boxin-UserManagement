@@ -33,12 +33,17 @@ class AuthController extends BaseController
 
         if (!auth()->attempt($credentials)) {
             return response()->json([
-                'errors' => 'Your credential not macth',
+                'success' => false,
+                'status_verified' => null, 
+                'message' => 'Your credential not match',
             ], 401);
         }
 
         if (auth()->user()->status != 1) {
-            return response()->json(['success' => 'false', 'message' => 'Login not verified.'], 401);
+            return response()->json([
+                'success' => 'false', 
+                'status_verified' => 0, 
+                'message' => 'Account not verified. Please retry code OTP.'], 401);
         }
 
         $success['token'] =  auth()->user()->createToken('Boxin')->accessToken;
@@ -143,7 +148,8 @@ class AuthController extends BaseController
     public function retryCode(Request $request)
     {
 
-        $data               = $request->user();
+        $phone              = $request->input('phone');
+        $data               = User::where('phone', $phone)->first();
         $code               = rand(1000,9999);
         if($data){
             $data->remember_token = $code;
@@ -155,6 +161,7 @@ class AuthController extends BaseController
             ]);
             $result = array(
                 'user_id' => $data->id,
+                'phone'   => $data->phone,
                 'code'    => $code
             );
             return $this->sendResponse($result, 'Success send new code.');
