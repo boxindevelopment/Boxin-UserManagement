@@ -32,26 +32,17 @@ class AuthController extends BaseController
         ]);
 
         if (!auth()->attempt($credentials)) {
-            return response()->json([
-                'success' => false,
-                'status_verified' => null, 
-                'message' => 'Your credential not match',
-            ], 401);
+            return response()->json(['success' => false, 'status_verified' => null, 'message' => 'Your credential not match'], 401);
         }
 
         if (auth()->user()->status != 1) {
-            return response()->json([
-                'success' => 'false', 
-                'status_verified' => 0, 
-                'message' => 'Account not verified. Please retry code OTP.'], 402);
+            return response()->json(['success' => 'false', 'status_verified' => 0, 'message' => 'Account not verified. Please retry code OTP.'], 401);
         }
 
         $success['token'] =  auth()->user()->createToken('Boxin')->accessToken;
         $success['first_name'] =  auth()->user()->first_name;
         $success['email'] =  auth()->user()->email;
         $success['phone'] =  auth()->user()->phone;
-
-        // return $this->sendResponse($success, 'User login successfully.');
 
         return (new AuthResource(auth()->user()))->additional([
             'success' => true,
@@ -75,11 +66,9 @@ class AuthController extends BaseController
             'confirmation_password' => 'required|same:password',
         ]);
 
-
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());
         }
-
 
         $input              = $request->all();
         $input['password']   = bcrypt($request->input('password'));
@@ -91,7 +80,6 @@ class AuthController extends BaseController
         $remember_token     = User::whereId($user->id)->update($data);
 
         if($user){
-
 
           $code = rand(1000,9999);
           $user->remember_token = $code;
@@ -124,24 +112,23 @@ class AuthController extends BaseController
             'code_verification' => 'required',
         ]);
 
-
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
         $user       = User::where('id', $request->input('user_id'))->first();
-
-        if($user->remember_token == $request->input('code_verification')){
-            $data['remember_token']   = NULL;
-            $data['status']   = 1;
-            $verification     = User::where('id', $user->id)->update($data);
-            // return $this->sendResponse($verification, 'Authentification success.');
-            return (new AuthResource($user))->additional([
-                'success' => true,
-                'message' => 'Authentification success.'
-            ]);
-        }else{
-            return $this->sendError('Authentification failed, your number wrong. Please try again.');
+        if($user){
+            if($user->remember_token == $request->input('code_verification')){
+                $data['remember_token']   = NULL;
+                $data['status']   = 1;
+                $verification     = User::where('id', $user->id)->update($data);
+                return (new AuthResource($user))->additional([
+                    'success' => true,
+                    'message' => 'Authentification success.'
+                ]);
+            }else{
+                return $this->sendError('Authentification failed, your number wrong. Please try again.');
+            }
         }
     }
 
@@ -170,27 +157,5 @@ class AuthController extends BaseController
         }
 
     }
-
-    // public function retryCode($user_id)
-    // {
-    //     $data               = User::where('id', $user_id)->get();
-    //     $phone              = $data[0]->phone;
-    //     $code               = rand(1000,9999);
-    //     if($data){
-    //         $message  = "Hello Phone!";
-    //         $to       = "+6281221819612";
-    //         $from     = "+6281221819612";
-    //         $response = Sms::send($message,$to,$from);
-    //         dd($response);
-    //         $result = array(
-    //             'user_id' => $user_id,
-    //             'code'    => $code,
-    //             'response'=> $response,
-    //         );
-    //         return $this->sendResponse($result, 'Success send new code.');
-    //     }else{
-    //         return $this->sendError('Send new code failed.');
-    //     }
-    // }
 
 }
