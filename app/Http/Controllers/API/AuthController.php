@@ -129,7 +129,7 @@ class AuthController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $user             = $request->user();
+        $user       = User::where('id', $request->input('user_id'))->first();
 
         if($user->remember_token == $request->input('code_verification')){
             $data['remember_token']   = NULL;
