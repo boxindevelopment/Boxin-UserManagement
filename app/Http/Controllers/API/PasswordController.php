@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Notifications\Notifiable;
 use Nexmo;
 use Illuminate\Support\Facades\Mail;
+use Hash;
 
 class PasswordController extends BaseController
 {
@@ -58,7 +59,7 @@ class PasswordController extends BaseController
             // TODO: create email view for new password
             if($user->save()){
                 // TODO: create email view for new password
-                Mail::send('emails.password', ['password' => $new_password], function ($m) use ($user) {
+                Mail::send('emails.password', ['password' => $new_password, 'email' => $user->email], function ($m) use ($user) {
                     $m->from('admin@boxin.com', "Boxin Administrator");
                     $m->to($user->email, $user->first_name)->subject('Resetting Account Password');
                 });
@@ -70,34 +71,34 @@ class PasswordController extends BaseController
         return response()->json($response = ['message' => 'Your email has not yet registered. Please contact admin!'], 404);
     }
 
-    public function changePassword(Request $request)
-    {
-        $validator = \Validator::make($request->all(), [
-            'token' => 'required',
-            'email' => 'required|email|exists:users,email',
-            'password' => 'required|confirmed'
-        ]);
+    // public function changePassword(Request $request)
+    // {
+    //     $validator = \Validator::make($request->all(), [
+    //         'token' => 'required',
+    //         'email' => 'required|email|exists:users,email',
+    //         'password' => 'required|confirmed'
+    //     ]);
 
-        if($validator->fails()) {
-            return $this->sendError('Error ', $validator->errors());
-        }
+    //     if($validator->fails()) {
+    //         return $this->sendError('Error ', $validator->errors());
+    //     }
 
-        $response = $this->broker()->reset(
-            $this->credentials($request), function($user, $password) {
-                $this->resetPassword($user, $password);
-            }
-        );
+    //     $response = $this->broker()->reset(
+    //         $this->credentials($request), function($user, $password) {
+    //             $this->resetPassword($user, $password);
+    //         }
+    //     );
 
-        return $response == Password::PASSWORD_RESET
-            ? response()->json([
-                'status' => true,
-                'message' => $response
-            ])
-            : response()->json([
-                'status' => false,
-                'message' => $response
-            ]);
-    }
+    //     return $response == Password::PASSWORD_RESET
+    //         ? response()->json([
+    //             'status' => true,
+    //             'message' => $response
+    //         ])
+    //         : response()->json([
+    //             'status' => false,
+    //             'message' => $response
+    //         ]);
+    // }
 
     protected function credentials(Request $request)
     {
@@ -120,48 +121,40 @@ class PasswordController extends BaseController
         return Password::broker();
     }
 
-    public function setPassword(Request $request)
+    public function changePassword(Request $request)
     {
 
         $validator = \Validator::make($request->all(), [
-            'token' => 'required',
+            'old_password' => 'required',
             'password' => 'required',
             'confirmation_password' => 'required|same:password',
         ]);
 
-
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
+        if($validator->fails()) {
+            return $this->sendError('Validation Error ', $validator->errors());
         }
 
-        $get_id             = User::where('remember_token', $request->input('token'))->get();
+        $params = $request->user();
+        //check old pass with current pass
+        $check  = Hash::check($request->input('old_password'), $params->password, []);
+        //check old pass with new pass
+        $check2  = Hash::check($request->input('password'), $params->password, []);
+        
+        $user   = User::where('id', $params['id'])->first();
 
-        if(isset($get_id[0])){
-            $user_id            = $get_id[0]->id;
-            $phone              = $get_id[0]->phone;
-            $data['password']   = bcrypt($request->input('password'));
-            $password           = User::where('id', $user_id)->update($data);
-            $code               = rand(1000,9999);
-
-            try {
-
-                Nexmo::message()->send([
-                    'to'   => $phone,
-                    'from' => 'Boxin',
-                    'text' => 'Please use this number '.$code.' for authentification in Boxin App. Thank you.'
-                ]);
-
-            } catch (Exception $e) {
-            }
-
-            $result = array(
-                'user_id' => $user_id,
-                'code'    => $code
-            );
-
-            return $this->sendResponse($result, 'Success set up password.');
+        if($check){
+            if(!$check2){
+                $user->password = bcrypt($request->input('password'));
+                if($user->save()){
+                    return response()->json($response = ['message' => 'Change password success.'], 200);
+                } else {
+                    return response()->json($response = ['message' => 'Change password fail.'], 404);
+                }
+            }else{
+                return response()->json($response = ['message' => 'Cannot save, because new password same with current password.'], 404);
+            }            
         }else{
-            return $this->sendError('Set Up Password failed. Your Token is wrong.');
+            return response()->json($response = ['message' => 'Your old password wrong.'], 404);
         }
     }
 
