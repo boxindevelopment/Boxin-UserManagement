@@ -21,7 +21,7 @@ class AuthResource extends Resource
             'email' => $this->email,
             'phone' => $this->phone,
             'status' => $this->status,
-            'image' => $this->image,
+            'image' => is_null($this->image) ? null : (asset('images/user').'/'.$this->image),
         ];
     }
 }

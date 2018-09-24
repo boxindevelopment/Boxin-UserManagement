@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use File;
 
 class UserController extends BaseController
 {
@@ -33,19 +34,28 @@ class UserController extends BaseController
         }
 
         $user   = User::findOrFail($user->id);
-        $user->first_name   = $request->first_name;
-        $user->last_name    = $request->last_name;
-        $user->email        = $request->email;
-        if ($request->hasFile('image')) {
-            if ($request->file('image')->isValid()) {
-                $getimageName = time().'.'.$request->image->getClientOriginalExtension();
-                $image = $request->image->move(public_path('images/user'), $getimageName);
-    
-            }
-            $user->image = $getimageName;
-        }
+        $image_old          = $user->image;
+        $image              = $request->image;
         
-        $user->save();
+        if($user){
+            $user->first_name   = $request->first_name;
+            $user->last_name    = $request->last_name;
+            $user->email        = $request->email;
+            if($image){
+                if ($request->hasFile('image')) {
+                    $image_path = "/images/user/{$image_old}";
+                    if ($request->file('image')->isValid()) {
+                        if (file_exists(public_path().$image_path)) {
+                           unlink(public_path().$image_path);
+                        }
+                        $getimageName = time().'.'.$request->image->getClientOriginalExtension();
+                        $image = $request->image->move(public_path('images/user'), $getimageName);
+                    }
+                }
+                $user->image = $getimageName != '' ? $getimageName : $image_old;
+            }
+            $user->save();
+        }        
 
         return (new AuthResource($user))->additional([
             'success' => true,
