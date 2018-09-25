@@ -15,7 +15,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- enable media queries for windows phone 8 -->
   <meta name="format-detection" content="date=no"> <!-- disable auto date linking in iOS 7-9 -->
   <meta name="format-detection" content="telephone=no"> <!-- disable auto telephone linking in iOS 7-9 -->
-  <title>Single Column</title>
+  <title>Boxin</title>
   <style type="text/css">
   /*start style*/
     .header,
@@ -243,9 +243,9 @@
 
           </td>
         </tr>
-        <!-- <tr>
+        <tr>
           <td class="container-padding footer-text" align="left">
-            <br><br>
+<!--             <br><br>
             Sample Footer text: &copy; 2015 Acme, Inc.
             <br><br>
 
@@ -258,11 +258,11 @@
               Springfield, MA 12345<br>
             </span>
             <a href="http://www.acme-inc.com">www.acme-inc.com</a><br>
-
+ -->
             <br><br>
 
           </td>
-        </tr> -->
+        </tr>
       </table><!--/600px container -->
 
 
