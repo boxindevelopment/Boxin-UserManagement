@@ -18,6 +18,7 @@ Route::group(['namespace' => 'API'], function () {
 	Route::get('facebook/{token}', ['uses' => 'FacebookController@getToken', 'as' => 'api.facebook']);
 	Route::get('google/{token}', ['uses' => 'GoogleController@getToken', 'as' => 'api.google']);
 	Route::post('password/email', 'PasswordController@forgotPassword')->name('api.password.email');
+	Route::post('contact-us', 'ContactController@send')->name('api.contact');
 	
 	Route::post('sign-up', ['uses' => 'AuthController@signUp', 'as' => 'api.auth.signUp']);
 	Route::post('retry-code', ['uses' => 'AuthController@retryCode', 'as' => 'api.auth.retryCode']);

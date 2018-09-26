@@ -65,9 +65,15 @@ class PasswordController extends BaseController
             if($user->save()){
                 // TODO: create email view for new password
                 $data = [
-                    'email' => $user->email,
-                    'subject' => 'Resetting Account Password',
-                    'password' => $new_password,
+                    'email'     => $user->email,
+                    'subject'   => 'Resetting Account Password',
+                    'password'  => $new_password,
+                    'from'      => 'admin@boxin.com',
+                    'name_from' => 'Boxin Administrator',
+                    'last_name' => '',
+                    'phone'     => '',
+                    'question'  => '',
+                    'view'      => 'emails.password',
                 ];
                 Mail::to($user->email, $user->first_name)->send(new TestEmail($data));
                 return response()->json($response = ['message' => 'Reset password already sent to your email.']);

@@ -32,16 +32,21 @@ class TestEmail extends Mailable
      */
     public function build()
     {
-        $address    = 'admin@boxin.com';
+        $address    = $this->data['from'];
         $subject    = $this->data['subject'];
-        $name       = 'Boxin Administrator';
+        $name       = $this->data['name_from'];
         
-        return $this->view('emails.password')
+        return $this->view($this->data['view'])
                     ->from($address, $name)
                     ->subject($subject)
                     ->with([ 
-                        'email' => $this->data['email'],
-                        'password' => $this->data['password'], 
+                        'email'     => $this->data['email'],
+                        'password'  => $this->data['password'], 
+                        'first_name'=> $this->data['name_from'],
+                        'last_name' => $this->data['last_name'],
+                        'phone'     => $this->data['phone'],
+                        'question'  => $this->data['question'],
+                        'subject'   => $subject,
                     ]);
     }
 }
