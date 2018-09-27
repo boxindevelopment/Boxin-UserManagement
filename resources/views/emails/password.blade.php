@@ -44,8 +44,8 @@
     .btn-password {  
       padding: 7px 0px;
       background-color: #bedefa;
-      border-radius: 30px;
-      margin: 0px 7%;
+      border-radius: 10px;
+      margin: 0px 30%;
       font-weight: 800;
       /* box-shadow: -4px 0px 0px slategrey; */
       font-size: 15px;
@@ -53,9 +53,6 @@
     }
 
     .button {
-      margin: 0px 30%;
-      background-color: #313945;
-      border-radius: 33px;
       padding: 5px 0px;
     }
 
