@@ -54,9 +54,13 @@ class UserController extends BaseController
                     $image_path = "/images/user/{$image_old}";
                     if ($request->file('image')->isValid()) {
                         if($image_old != null || $image_old != 'NULL'){
-                            if (file_exists(public_path().$image_path)) {
-                               unlink(public_path().$image_path);
-                            }
+                            // $files = File::find($user->id);
+                            // dd(public_path().$image_path);
+                            
+                            Storage::delete(public_path().$image_path);
+                            // if (file_exists(public_path().$image_path)) {
+                            //    unlink(public_path().$image_path);
+                            // }
                         }                        
                         $getimageName = time().'.'.$request->image->getClientOriginalExtension();
                         $image = $request->image->move(public_path('images/user'), $getimageName);
