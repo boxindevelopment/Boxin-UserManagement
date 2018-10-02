@@ -54,7 +54,6 @@ class UserController extends BaseController
                     $image_path = "/images/user/{$image_old}";
                     if ($request->file('image')->isValid()) {
                         if($image_old != null || $image_old != 'NULL'){
-                            
                             if (file_exists(public_path().$image_path)) {
                                unlink(public_path().$image_path);
                                Storage::delete(public_path().$image_path);
