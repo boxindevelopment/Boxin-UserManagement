@@ -48,7 +48,8 @@ class UserController extends BaseController
         if($user){
             $user->first_name   = $request->first_name;
             $user->last_name    = $request->last_name;
-            $user->email        = $request->email;
+            $user->email        = $request->email;            
+            $user->address      = $request->address;
             if($image){
                 if ($request->hasFile('image')) {
                     $image_path = "/images/user/{$image_old}";
