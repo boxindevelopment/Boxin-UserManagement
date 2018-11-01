@@ -88,7 +88,7 @@ class AuthController extends BaseController
                 Nexmo::message()->send([
                     'to'   => $input['phone'],
                     'from' => 'Boxin',
-                    'text' => 'Please use this number '.$code.' for authentification in Boxin App. Thank you.'
+                    'text' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
                 ]);
             } catch (Nexmo\Client\Exception\Request $e) {
             }
@@ -124,10 +124,10 @@ class AuthController extends BaseController
                 $verification     = User::where('id', $user->id)->update($data);
                 return (new AuthResource($user))->additional([
                     'success' => true,
-                    'message' => 'Authentification success.'
+                    'message' => 'Authentication success.'
                 ]);
             }else{
-                return $this->sendError('Authentification failed, your number wrong. Please try again.');
+                return $this->sendError('Authentication failed, your number wrong. Please try again.');
             }
         }
     }
@@ -144,7 +144,7 @@ class AuthController extends BaseController
             Nexmo::message()->send([
                 'to'   => $data->phone,
                 'from' => 'Boxin',
-                'text' => 'Please use this number '.$code.' for authentification in Boxin App. Thank you.'
+                'text' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
             ]);
             $result = array(
                 'user_id' => $data->id,
