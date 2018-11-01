@@ -73,7 +73,7 @@ class AuthController extends BaseController
         $input              = $request->all();
         $input['password']  = bcrypt($request->input('password'));
         $input['phone']     = $request->input('phone');        
-        $input['status_id'] = 1;
+        $input['status_id'] = 2;
         $user               = User::create($input);
         $token              = $user->createToken('Boxin')->accessToken;
 
