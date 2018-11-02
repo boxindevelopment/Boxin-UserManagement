@@ -20,7 +20,7 @@ class AuthResource extends Resource
             'last_name' => $this->last_name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'status' => $this->status_id,
+            'status' => $this->status,
             'image' => is_null($this->image) ? null : (asset('images/user').'/'.$this->image),
             'address' => $this->address,
         ];

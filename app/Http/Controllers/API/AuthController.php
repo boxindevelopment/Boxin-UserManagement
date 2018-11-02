@@ -73,7 +73,7 @@ class AuthController extends BaseController
         $input              = $request->all();
         $input['password']  = bcrypt($request->input('password'));
         $input['phone']     = $request->input('phone');        
-        $input['status_id'] = 2;
+        $input['status']    = 2;
         $user               = User::create($input);
         $token              = $user->createToken('Boxin')->accessToken;
 
@@ -98,7 +98,6 @@ class AuthController extends BaseController
                 'success' => true,
                 'message' => 'User register successfully.',
                 'token' => $token,
-                'code' => $code,
             ]);
         } else {
             User::whereId($user->id)->delete($user->id);
