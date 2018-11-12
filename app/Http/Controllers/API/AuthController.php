@@ -1,8 +1,5 @@
 <?php
-
-
 namespace App\Http\Controllers\API;
-
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
@@ -12,7 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Notifications\Notifiable;
 use Nexmo;
-use Sms;
+use Twilio\Rest\Client;
+use Twilio\Jwt\ClientToken;
 
 class AuthController extends BaseController
 {
@@ -72,6 +70,7 @@ class AuthController extends BaseController
 
         $input              = $request->all();
         $input['password']  = bcrypt($request->input('password'));
+        $input['last_name'] = $request->input('last_name');         
         $input['phone']     = $request->input('phone');        
         $input['status']    = 2;
         $user               = User::create($input);
@@ -82,17 +81,17 @@ class AuthController extends BaseController
 
         if($user){
 
-          $code = rand(1000,9999);
-          $user->remember_token = $code;
-          $user->save();
-            try {
-                Nexmo::message()->send([
-                    'to'   => $input['phone'],
-                    'from' => 'Boxin',
-                    'text' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
-                ]);
-            } catch (Nexmo\Client\Exception\Request $e) {
-            }
+          // $code = rand(1000,9999);
+          // $user->remember_token = $code;
+          // $user->save();
+          //   try {
+          //       Nexmo::message()->send([
+          //           'to'   => $input['phone'],
+          //           'from' => 'Boxin',
+          //           'text' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
+          //       ]);
+          //   } catch (Nexmo\Client\Exception\Request $e) {
+          //   }
 
             return (new AuthResource($user))->additional([
                 'success' => true,
@@ -103,6 +102,60 @@ class AuthController extends BaseController
             User::whereId($user->id)->delete($user->id);
             return response()->json(['message' => 'Register failed.']);
         }
+    }
+
+    public function sendCode(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'user_id'   => 'required',
+            'token'     => 'required',
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        $accountSid = config('app.twilio')['TWILIO_ACCOUNT_SID'];
+        $authToken  = config('app.twilio')['TWILIO_AUTH_TOKEN'];
+        $appSid     = config('app.twilio')['TWILIO_APP_SID'];
+        $client     = new Client($accountSid, $authToken);
+
+        $user       = User::where('id', $request->input('user_id'))->where('remember_token', $request->input('token'))->first();
+
+        if($user){
+            try {
+
+                $code = rand(1000,9999);
+                $user->remember_token = $code;
+                $user->save();
+
+                $token = $user->createToken('Boxin')->accessToken;
+
+                $phone = '+'.$user->phone;
+                // Use the client to do fun stuff like send text messages!
+                $client->messages->create(
+                // the number you'd like to send the message to
+                    // +919033999999, array(
+                    $phone, array(
+                        // A Twilio phone number you purchased at twilio.com/console
+                        'from' => '+18124322732',
+                        // the body of the text message you'd like to send
+                        'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
+                    )
+                );
+
+                return (new AuthResource($user))->additional([
+                    'success' => true,
+                    'message' => 'Send code successfully.',
+                    'token' => $token,
+                ]);
+            } catch (Exception $e){
+                echo "Error: " . $e->getMessage();
+            }
+        } else {
+            return response()->json(['message' => 'Send code failed.']);
+        }            
+        
     }
 
     public function authCode(Request $request)
@@ -134,18 +187,27 @@ class AuthController extends BaseController
 
     public function retryCode(Request $request)
     {
+        $accountSid = config('app.twilio')['TWILIO_ACCOUNT_SID'];
+        $authToken  = config('app.twilio')['TWILIO_AUTH_TOKEN'];
+        $appSid     = config('app.twilio')['TWILIO_APP_SID'];
+        $client     = new Client($accountSid, $authToken);
 
-        $phone              = $request->input('phone');
-        $data               = User::where('phone', $phone)->first();
-        $code               = rand(1000,9999);
+        $phone      = $request->input('phone');
+        $data       = User::where('phone', $phone)->first();
+        $code       = rand(1000,9999);
         if($data){
+
             $data->remember_token = $code;
             $data->save();
-            Nexmo::message()->send([
-                'to'   => $data->phone,
-                'from' => 'Boxin',
-                'text' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
-            ]);
+
+            $nomor = '+'.$phone;
+            $client->messages->create(
+                $nomor, array(
+                    'from' => '+18124322732',
+                    'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
+                )
+            );
+
             $result = array(
                 'user_id' => $data->id,
                 'phone'   => $data->phone,

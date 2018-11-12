@@ -21,6 +21,7 @@ Route::group(['namespace' => 'API'], function () {
 	Route::post('contact-us', 'ContactController@send')->name('api.contact');
 	
 	Route::post('sign-up', ['uses' => 'AuthController@signUp', 'as' => 'api.auth.signUp']);
+	Route::post('send-code', ['uses' => 'AuthController@sendCode', 'as' => 'api.auth.sendCode']);
 	Route::post('retry-code', ['uses' => 'AuthController@retryCode', 'as' => 'api.auth.retryCode']);
 	Route::post('auth-code', ['uses' => 'AuthController@authCode', 'as' => 'api.auth.authCode']);
 

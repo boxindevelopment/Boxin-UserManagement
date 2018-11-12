@@ -12,9 +12,8 @@
         "laravel/tinker": "^1.0",
         "nexmo/client": "^1.4",
         "nexmo/laravel": "^1.1",
-        "twilio/sdk": "4.10",
-        "zenapply/laravel-sms": "^2.1",
-        "sendgrid/sendgrid": "~7"
+        "sendgrid/sendgrid": "~7",
+        "twilio/sdk": "^5.24"
     },
     "require-dev": {
         "filp/whoops": "^2.0",
