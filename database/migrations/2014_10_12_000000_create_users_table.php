@@ -23,8 +23,14 @@ class CreateUsersTable extends Migration
             $table->string('google_id',100)->nullable();
             $table->string('password',160);
             $table->text('remember_token')->nullable();
-            $table->tinyInteger('status')->default(2);
+            $table->string('image', 225)->nullable();
+            $table->tinyInteger('status')->default(2);$table->text('address')->nullable();
+            $table->integer('roles_id')->unsigned()->default(1);            
             $table->timestamps();
+
+            $table
+                ->foreign('roles_id')->references('id')->on('roles')
+                ->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
