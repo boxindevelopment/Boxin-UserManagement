@@ -80,6 +80,19 @@ class AuthController extends BaseController
         $remember_token     = User::whereId($user->id)->update($data);
 
         if($user){
+
+          // $code = rand(1000,9999);
+          // $user->remember_token = $code;
+          // $user->save();
+          //   try {
+          //       Nexmo::message()->send([
+          //           'to'   => $input['phone'],
+          //           'from' => 'Boxin',
+          //           'text' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
+          //       ]);
+          //   } catch (Nexmo\Client\Exception\Request $e) {
+          //   }
+
             return (new AuthResource($user))->additional([
                 'success' => true,
                 'message' => 'User register successfully.',
@@ -105,7 +118,6 @@ class AuthController extends BaseController
         $accountSid = config('app.twilio')['TWILIO_ACCOUNT_SID'];
         $authToken  = config('app.twilio')['TWILIO_AUTH_TOKEN'];
         $appSid     = config('app.twilio')['TWILIO_APP_SID'];
-        $number_twilio = config('app.twilio')['TWILIO_NUMBER'];
         $client     = new Client($accountSid, $authToken);
 
         $user       = User::where('id', $request->input('user_id'))->where('remember_token', $request->input('token'))->first();
@@ -126,7 +138,7 @@ class AuthController extends BaseController
                     // +919033999999, array(
                     $phone, array(
                         // A Twilio phone number you purchased at twilio.com/console
-                        'from' => $number_twilio,
+                        'from' => '+16105491019',
                         // the body of the text message you'd like to send
                         'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
                     )
@@ -141,7 +153,7 @@ class AuthController extends BaseController
                 echo "Error: " . $e->getMessage();
             }
         } else {
-            return response()->json(['message' => 'Send code failed.']);
+            return response()->json(['success' => false, 'message' => 'Send code failed.']);
             User::whereId($user->id)->delete($user->id);
         }            
         
@@ -193,7 +205,7 @@ class AuthController extends BaseController
             $nomor = '+'.$phone;
             $client->messages->create(
                 $nomor, array(
-                    'from' => $number_twilio,
+                    'from' => '+16105491019',
                     'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
                 )
             );
