@@ -34,7 +34,7 @@ class AuthController extends BaseController
         }
 
         if (auth()->user()->status != 1) {
-            return response()->json(['success' => 'false', 'status_verified' => 0, 'message' => 'Account not verified. Please retry code OTP.'], 401);
+            return response()->json(['success' => false, 'data' => new AuthResource(auth()->user()), 'status_verified' => 0, 'message' => 'Account not verified. Please retry code OTP.'], 401);
         }
 
         $success['token'] =  auth()->user()->createToken('Boxin')->accessToken;
