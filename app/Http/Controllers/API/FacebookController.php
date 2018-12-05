@@ -79,7 +79,8 @@ class FacebookController extends BaseController
                                 'last_name' => $lastName,
                                 'email' => $response['email'],
                                 'password' => $password,
-                                'facebook_id' => $response['id']
+                                'facebook_id' => $response['id'],
+                                'status' => 1,
                             );
 
                   $user = User::create($input);
