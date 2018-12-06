@@ -173,9 +173,9 @@ class AuthController extends BaseController
         $user       = User::where('id', $request->input('user_id'))->first();
         if($user){
             if($user->remember_token == $request->input('code_verification')){
-                $data['remember_token']   = NULL;
-                $data['status']   = 1;
-                $verification     = User::where('id', $user->id)->update($data);
+                $user->remember_token   = NULL;
+                $user->status           = 1;
+                $user->save();
                 return (new AuthResource($user))->additional([
                     'success' => true,
                     'message' => 'Authentication success.'
