@@ -126,7 +126,7 @@ class AuthController extends BaseController
             try {
 
                 $code = rand(1000,9999);
-                $user->remember_token = $code;
+                $user->code = $code;
                 $user->save();
 
                 $token = $user->createToken('Boxin')->accessToken;
@@ -172,8 +172,7 @@ class AuthController extends BaseController
 
         $user       = User::where('id', $request->input('user_id'))->first();
         if($user){
-            if($user->remember_token == $request->input('code_verification')){
-                $user->remember_token   = NULL;
+            if($user->code == $request->input('code_verification')){
                 $user->status           = 1;
                 $user->save();
                 return (new AuthResource($user))->additional([
@@ -199,7 +198,7 @@ class AuthController extends BaseController
         $code       = rand(1000,9999);
         if($data){
 
-            $data->remember_token = $code;
+            $data->code = $code;
             $data->save();
 
             $nomor = '+'.$phone;
