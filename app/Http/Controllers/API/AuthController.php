@@ -152,11 +152,11 @@ class AuthController extends BaseController
                 ]);
             } catch (Exception $e){
                 // echo "Error: " . $e->getMessage();
-                $user->delete();
+                User::where('id', $request->user_id)->delete();
                 return response()->json(['success' => false, 'message' => $e->getMessage()]);
             }
         } else {
-          User::where('id', $user->id)->delete();
+          User::where('id', $request->user_id)->delete();
           return response()->json(['success' => false, 'message' => 'Send code failed.']);
             // User::whereId($user->id)->delete($user->id);
         }            
