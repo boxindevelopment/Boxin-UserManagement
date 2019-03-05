@@ -216,7 +216,7 @@ return [
         'TWILIO_AUTH_TOKEN'  => env('TWILIO_AUTH_TOKEN'),
         'TWILIO_ACCOUNT_SID' => env('TWILIO_ACCOUNT_SID'),
         'TWILIO_APP_SID'     => env('TWILIO_APP_SID'),
-        'TWILIO_NUMBER'      => env('TWILIO_NUMBER')
+        'TWILIO_NUMBER'      => env('TWILIO_NUMBER', '+16105491019')
     ],
 
 ];

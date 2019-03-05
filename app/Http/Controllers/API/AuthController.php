@@ -120,9 +120,9 @@ class AuthController extends BaseController
         $appSid     = config('app.twilio')['TWILIO_APP_SID'];
         $client     = new Client($accountSid, $authToken);
 
-        $user       = User::where('id', $request->input('user_id'))->where('remember_token', $request->input('token'))->first();
+        $user = User::where('id', $request->user_id)->where('remember_token', $request->token)->first();
 
-        if($user){
+        if ($user) {
             try {
 
                 $code = rand(1000,9999);
@@ -138,7 +138,8 @@ class AuthController extends BaseController
                     // +919033999999, array(
                     $phone, array(
                         // A Twilio phone number you purchased at twilio.com/console
-                        'from' => '+16105491019',
+                        // 'from' => '+16105491019',
+                        'from' => config('app.twilio')['TWILIO_NUMBER'],
                         // the body of the text message you'd like to send
                         'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
                     )
@@ -150,11 +151,14 @@ class AuthController extends BaseController
                     'token' => $token,
                 ]);
             } catch (Exception $e){
-                echo "Error: " . $e->getMessage();
+                // echo "Error: " . $e->getMessage();
+                $user->delete();
+                return response()->json(['success' => false, 'message' => $e->getMessage()]);
             }
         } else {
-            return response()->json(['success' => false, 'message' => 'Send code failed.']);
-            User::whereId($user->id)->delete($user->id);
+          User::where('id', $user->id)->delete();
+          return response()->json(['success' => false, 'message' => 'Send code failed.']);
+            // User::whereId($user->id)->delete($user->id);
         }            
         
     }
@@ -205,7 +209,8 @@ class AuthController extends BaseController
             $nomor = '+'.$phone;
             $client->messages->create(
                 $nomor, array(
-                    'from' => '+16105491019',
+                    // 'from' => '+16105491019',
+                    'from' => $number_twilio,
                     'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
                 )
             );
