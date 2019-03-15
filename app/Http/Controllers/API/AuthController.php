@@ -33,14 +33,25 @@ class AuthController extends BaseController
             return response()->json(['success' => false, 'status_verified' => null, 'message' => 'Your credential not match'], 401);
         }
 
-        if (auth()->user()->status != 1) {
-            return response()->json(['success' => 'false', 'status_verified' => 0, 'message' => 'Account not verified. Please retry code OTP.', 'data' => new AuthResource(auth()->user())], 401);
-        }
-
         $success['token'] =  auth()->user()->createToken('Boxin')->accessToken;
         $success['first_name'] =  auth()->user()->first_name;
         $success['email'] =  auth()->user()->email;
         $success['phone'] =  auth()->user()->phone;
+
+        if (auth()->user()->status != 1) {
+          // return response()->json([
+          //   'success'         => false,
+          //   'status_verified' => 0,
+          //   'message'         => 'Account not verified. Please retry code OTP.',
+          //   'data'            => new AuthResource(auth()->user())
+          // ], 401);
+          return (new AuthResource(auth()->user()))->additional([
+            'success'         => false,
+            'status_verified' => 0,
+            'message'         => 'Account not verified. Please retry code OTP.',
+            'token'           => auth()->user()->createToken('Boxin')->accessToken,
+          ], 401);
+        }
 
         return (new AuthResource(auth()->user()))->additional([
             'success' => true,
