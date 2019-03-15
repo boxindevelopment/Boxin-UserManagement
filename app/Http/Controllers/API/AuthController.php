@@ -49,7 +49,8 @@ class AuthController extends BaseController
             'success'         => false,
             'status_verified' => 0,
             'message'         => 'Account not verified. Please retry code OTP.',
-            'token'           => auth()->user()->createToken('Boxin')->accessToken,
+            'token_otp'       => auth()->user()->remember_token,
+            'token'           => auth()->user()->createToken('Boxin')->accessToken
           ], 401);
         }
 
@@ -117,7 +118,7 @@ class AuthController extends BaseController
 
     public function sendCode(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'user_id'   => 'required',
             'token'     => 'required',
         ]);
@@ -178,7 +179,7 @@ class AuthController extends BaseController
     public function authCode(Request $request)
     {
 
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'code_verification' => 'required',
         ]);
 
