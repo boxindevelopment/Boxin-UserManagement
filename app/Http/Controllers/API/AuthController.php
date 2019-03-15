@@ -49,8 +49,7 @@ class AuthController extends BaseController
             'success'         => false,
             'status_verified' => 0,
             'message'         => 'Account not verified. Please retry code OTP.',
-            'token_otp'       => auth()->user()->remember_token,
-            'token'           => auth()->user()->createToken('Boxin')->accessToken
+            'token_otp'       => auth()->user()->remember_token
           ], 401);
         }
 
