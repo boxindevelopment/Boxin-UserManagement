@@ -46,6 +46,7 @@ class AuthController extends BaseController
             'success' => true,
             'message' => 'User login successfully.',
             'token' => auth()->user()->createToken('Boxin')->accessToken,
+            'database' => env('DB_DATABASE'),
         ]);
     }
 
@@ -70,8 +71,8 @@ class AuthController extends BaseController
 
         $input              = $request->all();
         $input['password']  = bcrypt($request->input('password'));
-        $input['last_name'] = $request->input('last_name');         
-        $input['phone']     = $request->input('phone');        
+        $input['last_name'] = $request->input('last_name');
+        $input['phone']     = $request->input('phone');
         $input['status']    = 2;
         $user               = User::create($input);
         $token              = $user->createToken('Boxin')->accessToken;
@@ -155,8 +156,8 @@ class AuthController extends BaseController
         } else {
             return response()->json(['success' => false, 'message' => 'Send code failed.']);
             User::whereId($user->id)->delete($user->id);
-        }            
-        
+        }
+
     }
 
     public function authCode(Request $request)
