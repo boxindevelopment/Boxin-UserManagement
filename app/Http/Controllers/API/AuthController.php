@@ -33,14 +33,25 @@ class AuthController extends BaseController
             return response()->json(['success' => false, 'status_verified' => null, 'message' => 'Your credential not match'], 401);
         }
 
-        if (auth()->user()->status != 1) {
-            return response()->json(['success' => 'false', 'status_verified' => 0, 'message' => 'Account not verified. Please retry code OTP.', 'data' => new AuthResource(auth()->user())], 401);
-        }
-
         $success['token'] =  auth()->user()->createToken('Boxin')->accessToken;
         $success['first_name'] =  auth()->user()->first_name;
         $success['email'] =  auth()->user()->email;
         $success['phone'] =  auth()->user()->phone;
+
+        if (auth()->user()->status != 1) {
+          // return response()->json([
+          //   'success'         => false,
+          //   'status_verified' => 0,
+          //   'message'         => 'Account not verified. Please retry code OTP.',
+          //   'data'            => new AuthResource(auth()->user())
+          // ], 401);
+          return (new AuthResource(auth()->user()))->additional([
+            'success'         => false,
+            'status_verified' => 0,
+            'message'         => 'Account not verified. Please retry code OTP.',
+            'token_otp'       => auth()->user()->remember_token
+          ], 401);
+        }
 
         return (new AuthResource(auth()->user()))->additional([
             'success' => true,
@@ -106,7 +117,7 @@ class AuthController extends BaseController
 
     public function sendCode(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'user_id'   => 'required',
             'token'     => 'required',
         ]);
@@ -120,13 +131,13 @@ class AuthController extends BaseController
         $appSid     = config('app.twilio')['TWILIO_APP_SID'];
         $client     = new Client($accountSid, $authToken);
 
-        $user       = User::where('id', $request->input('user_id'))->where('remember_token', $request->input('token'))->first();
+        $user = User::where('id', $request->user_id)->where('remember_token', $request->token)->first();
 
-        if($user){
+        if ($user) {
             try {
 
                 $code = rand(1000,9999);
-                $user->remember_token = $code;
+                $user->code = $code;
                 $user->save();
 
                 $token = $user->createToken('Boxin')->accessToken;
@@ -138,7 +149,8 @@ class AuthController extends BaseController
                     // +919033999999, array(
                     $phone, array(
                         // A Twilio phone number you purchased at twilio.com/console
-                        'from' => '+16105491019',
+                        // 'from' => '+16105491019',
+                        'from' => config('app.twilio')['TWILIO_NUMBER'],
                         // the body of the text message you'd like to send
                         'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
                     )
@@ -150,19 +162,23 @@ class AuthController extends BaseController
                     'token' => $token,
                 ]);
             } catch (Exception $e){
-                echo "Error: " . $e->getMessage();
+                // echo "Error: " . $e->getMessage();
+                // User::where('id', $request->user_id)->delete();
+                return response()->json(['success' => false, 'message' => $e->getMessage()]);
             }
-        } else {
-            return response()->json(['success' => false, 'message' => 'Send code failed.']);
-            User::whereId($user->id)->delete($user->id);
-        }            
-        
+        } 
+        // else {
+        //   User::where('id', $request->user_id)->delete();
+        //   return response()->json(['success' => false, 'message' => 'Send code failed.']);
+        //     // User::whereId($user->id)->delete($user->id);
+        // }
+        return response()->json(['success' => false, 'message' => 'Send code failed.']);  
     }
 
     public function authCode(Request $request)
     {
 
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'code_verification' => 'required',
         ]);
 
@@ -172,8 +188,7 @@ class AuthController extends BaseController
 
         $user       = User::where('id', $request->input('user_id'))->first();
         if($user){
-            if($user->remember_token == $request->input('code_verification')){
-                $user->remember_token   = NULL;
+            if($user->code == $request->input('code_verification')){
                 $user->status           = 1;
                 $user->save();
                 return (new AuthResource($user))->additional([
@@ -199,13 +214,14 @@ class AuthController extends BaseController
         $code       = rand(1000,9999);
         if($data){
 
-            $data->remember_token = $code;
+            $data->code = $code;
             $data->save();
 
             $nomor = '+'.$phone;
             $client->messages->create(
                 $nomor, array(
-                    'from' => '+16105491019',
+                    // 'from' => '+16105491019',
+                    'from' => $number_twilio,
                     'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
                 )
             );
