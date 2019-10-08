@@ -70,8 +70,8 @@ class AuthController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'first_name' => 'required',
-            'email' => 'required|email|unique:users',
-            'phone' => 'required|numeric|unique:users',
+            'email' => 'required|email|unique:users,email,NULL,id,deleted_at,NULL',
+            'phone' => 'required|numeric|unique:users,phone,NULL,id,deleted_at,NULL',
             'password' => 'required',
             'confirmation_password' => 'required|same:password',
         ]);
@@ -80,12 +80,29 @@ class AuthController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $input              = $request->all();
-        $input['password']  = bcrypt($request->input('password'));
-        $input['last_name'] = $request->input('last_name');
-        $input['phone']     = $request->input('phone');
-        $input['status']    = 2;
-        $user               = User::create($input);
+        $check = User::where('email', $request->input('email'))
+                     ->whereOr('phone', $request->input('phone'))
+                     ->first();
+        if($check){
+            $check->deleted_at  = null;
+            $check->password    = bcrypt($request->input('password'));
+            $check->email       = $request->input('email');
+            $check->last_name   = $request->input('last_name');
+            $check->phone       = $request->input('phone');
+            $check->status      = 2;
+
+            $check->save();
+            $user               = User::find($check->id);
+        } else {
+            $input              = $request->all();
+            $input['password']  = bcrypt($request->input('password'));
+            $input['email'] = $request->input('email');
+            $input['last_name'] = $request->input('last_name');
+            $input['phone']     = $request->input('phone');
+            $input['status']    = 2;
+            $user               = User::create($input);
+        }
+
         $token              = $user->createToken('Boxin')->accessToken;
 
         $data['remember_token'] = $token;
@@ -167,21 +184,17 @@ class AuthController extends BaseController
                 // User::where('id', $request->user_id)->delete();
                 return response()->json(['success' => false, 'message' => $e->getMessage()]);
             }
-<<<<<<< HEAD
         } else {
             return response()->json(['success' => false, 'message' => 'Send code failed.']);
             User::whereId($user->id)->delete($user->id);
         }
 
-=======
-        } 
         // else {
         //   User::where('id', $request->user_id)->delete();
         //   return response()->json(['success' => false, 'message' => 'Send code failed.']);
         //     // User::whereId($user->id)->delete($user->id);
         // }
-        return response()->json(['success' => false, 'message' => 'Send code failed.']);  
->>>>>>> production
+        return response()->json(['success' => false, 'message' => 'Send code failed.']);
     }
 
     public function authCode(Request $request)
