@@ -28,6 +28,10 @@ Route::group(['namespace' => 'API'], function () {
 
 	Route::prefix('user')->middleware('auth:api')->group(function() {
 		Route::get('profile', 'UserController@show')->name('api.user.show');
+		Route::get('address', 'UserAddressController@index')->name('api.user.address');
+		Route::get('address/{id}', 'UserAddressController@show')->name('api.user.show');
+		Route::post('address', 'UserAddressController@store')->name('api.user.store');
+		Route::post('address/{id}/update', 'UserAddressController@update')->name('api.user.update');
 		Route::post('update', 'UserController@update')->name('api.user.update');
 		Route::post('change-password', 'PasswordController@changePassword')->name('api.password.changePassword')->middleware('auth:api');
 	});
