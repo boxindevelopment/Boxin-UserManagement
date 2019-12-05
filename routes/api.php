@@ -29,8 +29,8 @@ Route::group(['namespace' => 'API'], function () {
 	Route::get('regencies/{province_id}', 'VillageController@getAllRegencies')->name('api.regency.all');
 	Route::get('districts/{regency_id}', 'VillageController@getAllDistricts')->name('api.district.all');
 	Route::get('villages/{district_id}', 'VillageController@getAllVillages')->name('api.village.all');
-	Route::get('help', 'HelpController@index')->name('api.help.index')->middleware('auth:api');
-	Route::post('help', 'HelpController@store')->name('api.help.store')->middleware('auth:api');
+	Route::get('help', 'HelpController@index')->name('api.help.index');
+	Route::post('help', 'HelpController@store')->name('api.help.store');
 
 	Route::prefix('user')->middleware('auth:api')->group(function() {
 		Route::get('profile', 'UserController@show')->name('api.user.show');

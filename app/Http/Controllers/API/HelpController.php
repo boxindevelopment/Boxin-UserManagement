@@ -11,8 +11,7 @@ class HelpController extends BaseController
 {
     public function index(Request $request)
     {
-        $user = $request->user();
-        $help = Help::where('user_id', $user->id)->get();
+        $help = Help::all();
         if(count($help) > 0) {
             $data = HelpResource::collection($help);
             return response()->json([
@@ -30,7 +29,6 @@ class HelpController extends BaseController
     public function show($id, Request $request)
     {
 
-        $user = $request->user();
         $help = Help::find($id);
         if($help){
             return (new HelpResource($help))->additional([
@@ -47,7 +45,6 @@ class HelpController extends BaseController
 
     public function store(Request $request)
     {
-        $users = $request->user();
 
         try {
 
@@ -58,8 +55,7 @@ class HelpController extends BaseController
                 'message'   => 'required',
             ]);
 
-            $help = Help::create(['user_id'     => $users->id,
-                                  'name'        => $request->input('name'),
+            $help = Help::create(['name'        => $request->input('name'),
                                   'email'       => $request->input('email'),
                                   'subject'     => $request->input('subject'),
                                   'message'     => $request->input('message')]);
@@ -77,7 +73,6 @@ class HelpController extends BaseController
 
     public function update($id, Request $request)
     {
-        $users = $request->user();
 
         try {
 
