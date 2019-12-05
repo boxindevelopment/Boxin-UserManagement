@@ -25,6 +25,8 @@ Route::group(['namespace' => 'API'], function () {
 	Route::post('send-code', ['uses' => 'AuthController@sendCode', 'as' => 'api.auth.sendCode']);
 	Route::post('retry-code', ['uses' => 'AuthController@retryCode', 'as' => 'api.auth.retryCode']);
 	Route::post('auth-code', ['uses' => 'AuthController@authCode', 'as' => 'api.auth.authCode']);
+	Route::get('help', 'HelpController@index')->name('api.help.index')->middleware('auth:api');
+	Route::post('help', 'HelpController@store')->name('api.help.store')->middleware('auth:api');
 
 	Route::prefix('user')->middleware('auth:api')->group(function() {
 		Route::get('profile', 'UserController@show')->name('api.user.show');
