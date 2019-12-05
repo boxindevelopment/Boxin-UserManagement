@@ -25,6 +25,10 @@ Route::group(['namespace' => 'API'], function () {
 	Route::post('send-code', ['uses' => 'AuthController@sendCode', 'as' => 'api.auth.sendCode']);
 	Route::post('retry-code', ['uses' => 'AuthController@retryCode', 'as' => 'api.auth.retryCode']);
 	Route::post('auth-code', ['uses' => 'AuthController@authCode', 'as' => 'api.auth.authCode']);
+	Route::get('provinces', 'VillageController@getAllProvinces')->name('api.province.all');
+	Route::get('regencies/{province_id}', 'VillageController@getAllRegencies')->name('api.regency.all');
+	Route::get('districts/{regency_id}', 'VillageController@getAllDistricts')->name('api.district.all');
+	Route::get('villages/{district_id}', 'VillageController@getAllVillages')->name('api.village.all');
 	Route::get('help', 'HelpController@index')->name('api.help.index')->middleware('auth:api');
 	Route::post('help', 'HelpController@store')->name('api.help.store')->middleware('auth:api');
 

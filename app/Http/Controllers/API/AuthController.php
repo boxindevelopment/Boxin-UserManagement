@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
+use App\Models\UserAddress;
 use App\Http\Resources\AuthResource;
 use Illuminate\Support\Facades\Auth;
 use Validator;
@@ -57,6 +58,7 @@ class AuthController extends BaseController
             'success' => true,
             'message' => 'User login successfully.',
             'token' => auth()->user()->createToken('Boxin')->accessToken,
+            'token_otp'       => auth()->user()->remember_token
         ]);
     }
 
@@ -73,6 +75,9 @@ class AuthController extends BaseController
             'phone' => 'required|numeric|unique:users,phone,NULL,id,deleted_at,NULL',
             'password' => 'required',
             'confirmation_password' => 'required|same:password',
+            'address' => 'required',
+            'postal_code'   => 'required',
+            'village_id'    => 'required|exists:villages,id',
         ]);
 
         if($validator->fails()){
@@ -109,6 +114,7 @@ class AuthController extends BaseController
 
         if($user){
 
+
           // $code = rand(1000,9999);
           // $user->remember_token = $code;
           // $user->save();
@@ -120,6 +126,18 @@ class AuthController extends BaseController
           //       ]);
           //   } catch (Nexmo\Client\Exception\Request $e) {
           //   }
+
+          $userAddress = UserAddress::create(['user_id'   => $user->id,
+                                        'name'            => $request->input('first_name'),
+                                        'address'         => $request->input('address'),
+                                        'postal_code'     => $request->input('postal_code'),
+                                        'rt'              => $request->input('rt'),
+                                        'rw'              => $request->input('rw'),
+                                        'village_id'      => $request->input('village_id'),
+                                        'apartment_name'  => $request->input('apartment_name'),
+                                        'apartment_tower' => $request->input('apartment_tower'),
+                                        'apartment_floor' => $request->input('apartment_floor'),
+                                        'apartment_number'=> $request->input('apartment_number')]);
 
             return (new AuthResource($user))->additional([
                 'success' => true,
@@ -146,10 +164,9 @@ class AuthController extends BaseController
         $accountSid = config('app.twilio')['TWILIO_ACCOUNT_SID'];
         $authToken  = config('app.twilio')['TWILIO_AUTH_TOKEN'];
         $appSid     = config('app.twilio')['TWILIO_APP_SID'];
-        $client     = new Client($accountSid, $authToken);
+        $client     = new Client($accountSid, $authToken, $appSid);
 
         $user = User::where('id', $request->user_id)->where('remember_token', $request->token)->first();
-
         if ($user) {
             try {
 

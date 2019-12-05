@@ -18,6 +18,7 @@ class UserAddressResource extends Resource
             'id' => $this->id,
             'name' => $this->name,
             'address' => $this->address,
+            'postal_code' => $this->postal_code,
             'apartment_name' => $this->apartment_name,
             'apartment_tower' => $this->apartment_tower,
             'apartment_floor' => $this->apartment_floor,
