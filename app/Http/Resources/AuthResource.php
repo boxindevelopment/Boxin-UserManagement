@@ -22,7 +22,7 @@ class AuthResource extends Resource
             'phone' => $this->phone,
             'status' => $this->status,
             'image' => is_null($this->image) ? null : (asset('images/user').'/'.$this->image),
-            'address' => $this->address : null,
+            'address' => $this->address,
             'token' => $this->remember_token,
         ];
     }
