@@ -75,7 +75,7 @@ class AuthController extends BaseController
             'phone' => 'required|numeric|unique:users,phone,NULL,id,deleted_at,NULL',
             'password' => 'required',
             'confirmation_password' => 'required|same:password',
-            'address' => 'required',
+            // 'address' => 'required',
             // 'postal_code'   => 'required',
             // 'village_id'    => 'required|exists:villages,id',
         ]);
