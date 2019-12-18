@@ -53,7 +53,6 @@ class AuthController extends BaseController
             'token_otp'       => auth()->user()->remember_token
           ], 401);
         }
-
         return (new AuthResource(auth()->user()))->additional([
             'success' => true,
             'message' => 'User login successfully.',
