@@ -136,7 +136,8 @@ class AuthController extends BaseController
                                         'apartment_name'  => $request->input('apartment_name'),
                                         'apartment_tower' => $request->input('apartment_tower'),
                                         'apartment_floor' => $request->input('apartment_floor'),
-                                        'apartment_number'=> $request->input('apartment_number')]);
+                                        'apartment_number'=> $request->input('apartment_number'),
+                                        'default'         => true]);
 
             return (new AuthResource($user))->additional([
                 'success' => true,

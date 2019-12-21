@@ -119,4 +119,38 @@ class UserAddressController extends BaseController
         }
 
     }
+
+    public function setDefault($id, Request $request)
+    {
+        $users = $request->user();
+        $userAddresses = UserAddress::where('user_id', $users->id)->get();
+        foreach ($userAddresses as $k => $v) {
+            $v->default = false;
+            $v->save();
+        }
+
+        $userAddress = UserAddress::where('user_id', $users->id)->where('id', $id)->first();
+        if(!$userAddress){
+            return response()->json(['message' => 'User address id not found.'], 422);
+        }
+        $userAddress->default = true;
+        $userAddress->save();
+
+        return response()->json(['message' => 'User Address change default successfully.']);
+
+    }
+
+    public function deleteAddress($id, Request $request)
+    {
+        $users = $request->user();
+        $userAddress = UserAddress::where('user_id', $users->id)->where('id', $id)->first();
+
+        if(!$userAddress){
+            return response()->json(['message' => 'User address id not found.'], 422);
+        }
+        $userAddress->delete();
+
+        return response()->json(['message' => 'User Address deleted.']);
+
+    }
 }
