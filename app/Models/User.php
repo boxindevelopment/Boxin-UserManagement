@@ -44,4 +44,13 @@ class User extends Authenticatable
    {
        return $this->hasMany('App\Models\UserAddress');
    }
+
+   public function withDefault() {
+        $addressDefault = $this->addresses()->where('default','=', 1);
+        if($addressDefault){
+            return $addressDefault;
+        } else {
+            return $this->addresses();
+        }
+   }
 }

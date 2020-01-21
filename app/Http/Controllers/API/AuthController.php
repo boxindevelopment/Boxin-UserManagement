@@ -53,7 +53,6 @@ class AuthController extends BaseController
             'token_otp'       => auth()->user()->remember_token
           ], 401);
         }
-
         return (new AuthResource(auth()->user()))->additional([
             'success' => true,
             'message' => 'User login successfully.',
@@ -75,9 +74,9 @@ class AuthController extends BaseController
             'phone' => 'required|numeric|unique:users,phone,NULL,id,deleted_at,NULL',
             'password' => 'required',
             'confirmation_password' => 'required|same:password',
-            // 'address' => 'required',
-            // 'postal_code'   => 'required',
-            // 'village_id'    => 'required|exists:villages,id',
+            'address' => 'required',
+            'postal_code'   => 'required',
+            'village_id'    => 'required|exists:villages,id',
         ]);
 
         if($validator->fails()){
@@ -127,17 +126,18 @@ class AuthController extends BaseController
           //   } catch (Nexmo\Client\Exception\Request $e) {
           //   }
 
-          // $userAddress = UserAddress::create(['user_id'   => $user->id,
-          //                               'name'            => $request->input('first_name'),
-          //                               'address'         => $request->input('address'),
-          //                               'postal_code'     => $request->input('postal_code'),
-          //                               'rt'              => $request->input('rt'),
-          //                               'rw'              => $request->input('rw'),
-          //                               'village_id'      => $request->input('village_id'),
-          //                               'apartment_name'  => $request->input('apartment_name'),
-          //                               'apartment_tower' => $request->input('apartment_tower'),
-          //                               'apartment_floor' => $request->input('apartment_floor'),
-          //                               'apartment_number'=> $request->input('apartment_number')]);
+          $userAddress = UserAddress::create(['user_id'   => $user->id,
+                                        'name'            => $request->input('first_name'),
+                                        'address'         => $request->input('address'),
+                                        'postal_code'     => $request->input('postal_code'),
+                                        'rt'              => $request->input('rt'),
+                                        'rw'              => $request->input('rw'),
+                                        'village_id'      => $request->input('village_id'),
+                                        'apartment_name'  => $request->input('apartment_name'),
+                                        'apartment_tower' => $request->input('apartment_tower'),
+                                        'apartment_floor' => $request->input('apartment_floor'),
+                                        'apartment_number'=> $request->input('apartment_number'),
+                                        'default'         => true]);
 
             return (new AuthResource($user))->additional([
                 'success' => true,

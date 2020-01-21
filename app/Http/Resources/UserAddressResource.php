@@ -25,7 +25,8 @@ class UserAddressResource extends Resource
             'apartment_number' => $this->apartment_number,
             'rt' => $this->rt,
             'rw' => $this->rw,
-            'village' => ($this->village) ? new VillageResource($this->village) : null
+            'village' => ($this->village) ? new VillageResource($this->village) : null,
+            'default' => $this->default,
         ];
     }
 }
