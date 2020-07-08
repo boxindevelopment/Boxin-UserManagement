@@ -78,6 +78,9 @@ class AuthController extends BaseController
             'address' => 'required',
             'postal_code'   => 'required',
             'village_id'    => 'required|exists:villages,id',
+        ], [
+            'email.unique' => 'email already registered',
+            'phone.unique' => 'phone number already registered',
         ]);
 
         if($validator->fails()){
