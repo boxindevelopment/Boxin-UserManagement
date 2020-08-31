@@ -22,7 +22,15 @@ class AuthResource extends Resource
             'phone' => $this->phone,
             'status' => $this->status,
             'image' => is_null($this->image) ? null : (asset('images/user').'/'.$this->image),
-            'address' => $this->address,
+            'address' => (count($this->addresses) > 0) ? $this->withDefault[0]->address : null,
+            'postal_code' => (count($this->addresses) > 0) ? $this->withDefault[0]->postal_code : null,
+            'apartment_name' => (count($this->addresses) > 0) ? $this->withDefault[0]->apartment_name : null,
+            'apartment_tower' => (count($this->addresses) > 0) ? $this->withDefault[0]->apartment_tower : null,
+            'apartment_floor' => (count($this->addresses) > 0) ? $this->withDefault[0]->apartment_floor : null,
+            'apartment_number' => (count($this->addresses) > 0) ? $this->withDefault[0]->apartment_number : null,
+            'rt' => (count($this->addresses) > 0) ? $this->withDefault[0]->rt : null,
+            'rw' => (count($this->addresses) > 0) ? $this->withDefault[0]->rw : null,
+            'village' => (count($this->addresses) > 0) ? new VillageResource($this->withDefault[0]->village) : null,
             'token' => $this->remember_token,
         ];
     }

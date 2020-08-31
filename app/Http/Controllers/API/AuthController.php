@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
+use App\Models\UserAddress;
 use App\Http\Resources\AuthResource;
 use Illuminate\Support\Facades\Auth;
 use Validator;
@@ -11,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Nexmo;
 use Twilio\Rest\Client;
 use Twilio\Jwt\ClientToken;
+use Twilio\Exceptions\RestException;
 
 class AuthController extends BaseController
 {
@@ -52,12 +54,11 @@ class AuthController extends BaseController
             'token_otp'       => auth()->user()->remember_token
           ], 401);
         }
-
         return (new AuthResource(auth()->user()))->additional([
             'success' => true,
             'message' => 'User login successfully.',
             'token' => auth()->user()->createToken('Boxin')->accessToken,
-            'database' => env('DB_DATABASE'),
+            'token_otp'       => auth()->user()->remember_token
         ]);
     }
 
@@ -74,6 +75,12 @@ class AuthController extends BaseController
             'phone' => 'required|numeric|unique:users,phone,NULL,id,deleted_at,NULL',
             'password' => 'required',
             'confirmation_password' => 'required|same:password',
+            'address' => 'required',
+            'postal_code'   => 'required',
+            'village_id'    => 'required|exists:villages,id',
+        ], [
+            'email.unique' => 'email already registered',
+            'phone.unique' => 'phone number already registered',
         ]);
 
         if($validator->fails()){
@@ -110,6 +117,7 @@ class AuthController extends BaseController
 
         if($user){
 
+
           // $code = rand(1000,9999);
           // $user->remember_token = $code;
           // $user->save();
@@ -121,6 +129,19 @@ class AuthController extends BaseController
           //       ]);
           //   } catch (Nexmo\Client\Exception\Request $e) {
           //   }
+
+          $userAddress = UserAddress::create(['user_id'   => $user->id,
+                                        'name'            => $request->input('first_name'),
+                                        'address'         => $request->input('address'),
+                                        'postal_code'     => $request->input('postal_code'),
+                                        'rt'              => $request->input('rt'),
+                                        'rw'              => $request->input('rw'),
+                                        'village_id'      => $request->input('village_id'),
+                                        'apartment_name'  => $request->input('apartment_name'),
+                                        'apartment_tower' => $request->input('apartment_tower'),
+                                        'apartment_floor' => $request->input('apartment_floor'),
+                                        'apartment_number'=> $request->input('apartment_number'),
+                                        'default'         => true]);
 
             return (new AuthResource($user))->additional([
                 'success' => true,
@@ -147,10 +168,9 @@ class AuthController extends BaseController
         $accountSid = config('app.twilio')['TWILIO_ACCOUNT_SID'];
         $authToken  = config('app.twilio')['TWILIO_AUTH_TOKEN'];
         $appSid     = config('app.twilio')['TWILIO_APP_SID'];
-        $client     = new Client($accountSid, $authToken);
+        $client     = new Client($accountSid, $authToken, $appSid);
 
         $user = User::where('id', $request->user_id)->where('remember_token', $request->token)->first();
-
         if ($user) {
             try {
 
@@ -163,13 +183,8 @@ class AuthController extends BaseController
                 $phone = '+'.$user->phone;
                 // Use the client to do fun stuff like send text messages!
                 $client->messages->create(
-                // the number you'd like to send the message to
-                    // +919033999999, array(
                     $phone, array(
-                        // A Twilio phone number you purchased at twilio.com/console
-                        // 'from' => '+16105491019',
                         'from' => config('app.twilio')['TWILIO_NUMBER'],
-                        // the body of the text message you'd like to send
                         'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
                     )
                 );
@@ -179,10 +194,14 @@ class AuthController extends BaseController
                     'message' => 'Send code successfully.',
                     'token' => $token,
                 ]);
+            } catch (RestException $e){
+                // echo "Error: " . $e->getMessage();
+                // User::where('id', $request->user_id)->delete();
+                return response()->json(['success' => false, 'message' =>'Phone number '.$phone.' is not a correct mobile phone number. Please try again!', 'e' => $e->getMessage()]);
             } catch (Exception $e){
                 // echo "Error: " . $e->getMessage();
                 // User::where('id', $request->user_id)->delete();
-                return response()->json(['success' => false, 'message' => $e->getMessage()]);
+                return response()->json(['success' => false, 'message' =>'Phone number '.$phone.' is not a correct mobile phone number. Please try again!']);
             }
         } else {
             return response()->json(['success' => false, 'message' => 'Send code failed.']);

@@ -39,4 +39,18 @@ class User extends Authenticatable
     {
         $this->notify(new CustomResetPassword($token));
     }
+
+   public function addresses()
+   {
+       return $this->hasMany('App\Models\UserAddress');
+   }
+
+   public function withDefault() {
+        $addressDefault = $this->addresses()->where('default','=', 1);
+        if($addressDefault){
+            return $addressDefault;
+        } else {
+            return $this->addresses();
+        }
+   }
 }

@@ -44,11 +44,11 @@ class UserController extends BaseController
         $user               = User::findOrFail(Auth::id());
         $image_old          = $user->image;
         $image              = $request->image;
-        
+
         if($user){
             $user->first_name   = $request->first_name;
             $user->last_name    = $request->last_name;
-            $user->email        = $request->email;            
+            $user->email        = $request->email;
             $user->address      = $request->address;
             if($image){
                 if ($request->hasFile('image')) {
@@ -59,7 +59,7 @@ class UserController extends BaseController
                                // unlink(public_path().$image_path);
                                Storage::delete(public_path().$image_path);
                             }
-                        }                        
+                        }
                         $getimageName = time().'.'.$request->image->getClientOriginalExtension();
                         $image = $request->image->move(public_path('images/user'), $getimageName);
                     }
@@ -67,7 +67,7 @@ class UserController extends BaseController
                 $user->image = $getimageName != '' ? $getimageName : $image_old;
             }
             $user->save();
-        }        
+        }
 
         return (new AuthResource($user))->additional([
             'success' => true,

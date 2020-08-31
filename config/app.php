@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Jakarta',
 
     /*
     |--------------------------------------------------------------------------
@@ -78,7 +78,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'id',
 
     /*
     |--------------------------------------------------------------------------
@@ -91,7 +91,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'en',
+    'fallback_locale' => 'id',
 
     /*
     |--------------------------------------------------------------------------
@@ -213,14 +213,14 @@ return [
     ],
 
     'twilio' => [
-        // 'TWILIO_AUTH_TOKEN'  => env('TWILIO_AUTH_TOKEN'),
-        // 'TWILIO_ACCOUNT_SID' => env('TWILIO_ACCOUNT_SID'),
-        // 'TWILIO_APP_SID'     => env('TWILIO_APP_SID'),
-        // 'TWILIO_NUMBER'      => env('TWILIO_NUMBER', '+16105491019')
-        'TWILIO_AUTH_TOKEN'  => '29bc645b66de59836ddb18b93b079e27',
-        'TWILIO_ACCOUNT_SID' => 'ACa1f97270f6aaf9f34248ee91acc71290',
-        'TWILIO_APP_SID'     => 'PN7b34e5bea0b072b41c05a81f32e0495b',
-        'TWILIO_NUMBER'      => '+18312731142'
+        'TWILIO_AUTH_TOKEN'  => env('TWILIO_AUTH_TOKEN'),
+        'TWILIO_ACCOUNT_SID' => env('TWILIO_ACCOUNT_SID'),
+        'TWILIO_APP_SID'     => env('TWILIO_APP_SID'),
+        'TWILIO_NUMBER'      => env('TWILIO_NUMBER', '+18312731142')
+        // 'TWILIO_AUTH_TOKEN'  => '29bc645b66de59836ddb18b93b079e27',
+        // 'TWILIO_ACCOUNT_SID' => 'ACa1f97270f6aaf9f34248ee91acc71290',
+        // 'TWILIO_APP_SID'     => 'PN7b34e5bea0b072b41c05a81f32e0495b',
+        // 'TWILIO_NUMBER'      => '+18312731142'
     ],
 
 ];
