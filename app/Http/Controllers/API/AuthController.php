@@ -12,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Nexmo;
 use Twilio\Rest\Client;
 use Twilio\Jwt\ClientToken;
+use Twilio\Exceptions\RestException;
 
 class AuthController extends BaseController
 {
@@ -77,6 +78,9 @@ class AuthController extends BaseController
             'address' => 'required',
             'postal_code'   => 'required',
             'village_id'    => 'required|exists:villages,id',
+        ], [
+            'email.unique' => 'email already registered',
+            'phone.unique' => 'phone number already registered',
         ]);
 
         if($validator->fails()){
@@ -179,13 +183,8 @@ class AuthController extends BaseController
                 $phone = '+'.$user->phone;
                 // Use the client to do fun stuff like send text messages!
                 $client->messages->create(
-                // the number you'd like to send the message to
-                    // +919033999999, array(
                     $phone, array(
-                        // A Twilio phone number you purchased at twilio.com/console
-                        // 'from' => '+16105491019',
                         'from' => config('app.twilio')['TWILIO_NUMBER'],
-                        // the body of the text message you'd like to send
                         'body' => 'Please use this number '.$code.' for authentication in Boxin App. Thank you.'
                     )
                 );
@@ -195,10 +194,14 @@ class AuthController extends BaseController
                     'message' => 'Send code successfully.',
                     'token' => $token,
                 ]);
+            } catch (RestException $e){
+                // echo "Error: " . $e->getMessage();
+                // User::where('id', $request->user_id)->delete();
+                return response()->json(['success' => false, 'message' =>'Phone number '.$phone.' is not a correct mobile phone number. Please try again!', 'e' => $e->getMessage()]);
             } catch (Exception $e){
                 // echo "Error: " . $e->getMessage();
                 // User::where('id', $request->user_id)->delete();
-                return response()->json(['success' => false, 'message' => $e->getMessage()]);
+                return response()->json(['success' => false, 'message' =>'Phone number '.$phone.' is not a correct mobile phone number. Please try again!']);
             }
         }
         // else {
