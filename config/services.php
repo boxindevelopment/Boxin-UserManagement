@@ -41,4 +41,9 @@ return [
         'sms_from' => '15556666666',
     ],
 
+    'mailjet' => [
+        'key' => env('MAILJET_APIKEY'),
+        'secret' => env('MAILJET_APISECRET'),
+    ]
+
 ];

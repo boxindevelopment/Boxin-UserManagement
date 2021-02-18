@@ -17,7 +17,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Mail\TestEmail;
+//use App\Mail\TestEmail;
+use \Mailjet\Resources;
 
 class PasswordController extends BaseController
 {
@@ -46,8 +47,19 @@ class PasswordController extends BaseController
     //         ]);
     // }
 
+
+    /**
+    * Via construct injection
+    *
+    */
+
     public function forgotPassword(Request $request)
     {
+
+	$keyMail = env('MAILJET_APIKEY');
+        $secretMail = env('MAILJET_APISECRET');
+	$mj = new \Mailjet\Client($keyMail, $secretMail,true,['version' => 'v3.1']);
+
         $validator = \Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email'
         ]);
@@ -75,7 +87,32 @@ class PasswordController extends BaseController
                     'question'  => '',
                     'view'      => 'emails.password',
                 ];
-                Mail::to($user->email, $user->first_name)->send(new TestEmail($data));
+	    $renderedData = view('emails.password')->with($data)->render();
+            $body = [
+                     'Messages' => [
+                       [
+                       'From' => [
+          'Email' => "boxin.twiscode@gmail.com",
+          'Name' => "Box"
+        ],
+        'To' => [
+          [
+            'Email' => $user->email,
+            'Name' => $user->first_name
+          ]
+        ],
+        'Subject' => $data['subject'],
+        'TextPart' => $data['subject'],
+        'HTMLPart' => $renderedData,
+      ]
+    ]
+  ];
+
+  $response = $mj->post(Resources::$Email, ['body' => $body]);
+
+
+                //Mail::to($user->email, $user->first_name)->send(new TestEmail($data));
+
                 return response()->json($response = ['message' => 'Reset password already sent to your email.']);
             } else {
                 return response()->json($response = ['message' => 'Reset password fail.']);
